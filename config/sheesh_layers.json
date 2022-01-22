@@ -4,7 +4,7 @@
   "ipfsUri": "ipfs://NewUriToReplace",
   "layers": [
     {
-      "size": 10,
+      "size": 1000,
       "order": [
         "Background",
         "Goo",
@@ -17,7 +17,7 @@
       ]
     },
     {
-      "size": 10,
+      "size": 1000,
       "order": [
         "Background",
         "Eyeball",
@@ -30,7 +30,7 @@
       ]
     },
     {
-      "size": 10,
+      "size": 1000,
       "order": [
         "Background",
         "Eyeball",
@@ -43,7 +43,7 @@
       ]
     },
     {
-      "size": 10,
+      "size": 1000,
       "order": [
         "Background",
         "Eyeball",
@@ -56,7 +56,7 @@
       ]
     },
     {
-      "size": 10,
+      "size": 1000,
       "order": [
         "Background",
         "Eyeball",
