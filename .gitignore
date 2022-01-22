@@ -1,5 +1,6 @@
 /target
 .idea
-./build/
-./layers/*
-!./layers/.gitkeep
+build
+
+layers/*
+!layers/.gitkeep

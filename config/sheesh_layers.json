@@ -1,0 +1,72 @@
+{
+  "namePrefix": "Sheesh",
+  "description": "I can only say sheesh to this",
+  "ipfsUri": "ipfs://NewUriToReplace",
+  "layers": [
+    {
+      "size": 10,
+      "order": [
+        "Background",
+        "Goo",
+        "Eyeball",
+        "Eye color",
+        "Iris",
+        "Shine",
+        "Bottom lid",
+        "Top lid"
+      ]
+    },
+    {
+      "size": 10,
+      "order": [
+        "Background",
+        "Eyeball",
+        "Goo",
+        "Eye color",
+        "Iris",
+        "Shine",
+        "Bottom lid",
+        "Top lid"
+      ]
+    },
+    {
+      "size": 10,
+      "order": [
+        "Background",
+        "Eyeball",
+        "Eye color",
+        "Goo",
+        "Iris",
+        "Shine",
+        "Bottom lid",
+        "Top lid"
+      ]
+    },
+    {
+      "size": 10,
+      "order": [
+        "Background",
+        "Eyeball",
+        "Eye color",
+        "Iris",
+        "Goo",
+        "Shine",
+        "Bottom lid",
+        "Top lid"
+      ]
+    },
+    {
+      "size": 10,
+      "order": [
+        "Background",
+        "Eyeball",
+        "Eye color",
+        "Iris",
+        "Shine",
+        "Goo",
+        "Bottom lid",
+        "Top lid"
+      ]
+    }
+  ]
+}
