@@ -1,0 +1,13 @@
+{
+  "size": 20,
+  "order": [
+    "Background",
+    "Eyeball",
+    "Eye color",
+    "Iris",
+    "Shine",
+    "Bottom lid",
+    "Top lid",
+    "Goo"
+  ]
+}
