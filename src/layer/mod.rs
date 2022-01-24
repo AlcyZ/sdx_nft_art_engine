@@ -63,6 +63,7 @@ impl Layers {
         for entry in read_dir(configuration.get_layers_dir())
             .context(context)?
             .filter_map(|e| e.ok())
+            .filter(|e| e.path().is_dir())
         {
             layers.push(Layer::try_from_dir_entry(entry).context(context)?);
         }
@@ -166,19 +167,22 @@ pub struct Layer {
 
 impl Layer {
     fn try_from_dir_entry(entry: DirEntry) -> Result<Layer> {
-        let context = "try to create layer from directory entry";
+        let context = format!(
+            "try to create layer file from directory entry: {}",
+            entry.path().display()
+        );
 
-        let name = try_convert_os_string_to_string(entry.file_name()).context(context)?;
+        let name = try_convert_os_string_to_string(entry.file_name()).context(context.clone())?;
         let mut files = vec![];
         for (id, layer_entry) in read_dir(entry.path())
-            .context(context)?
+            .context(context.clone())?
             .filter_map(|e| e.ok())
             .enumerate()
         {
-            files.push(LayerFile::try_from_dir_entry(id, layer_entry).context(context)?);
+            files.push(LayerFile::try_from_dir_entry(id, layer_entry).context(context.clone())?);
         }
         if files.is_empty() {
-            bail!("Couldn't find any layer files.");
+            bail!("Couldn't find any layer files in {}", entry.path().display());
         }
         let files = LayerFiles::new(files);
 
