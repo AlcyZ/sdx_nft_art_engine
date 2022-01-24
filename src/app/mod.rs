@@ -73,7 +73,7 @@ fn get_matches() -> ArgMatches {
                 .long("layer-dir")
                 .value_name("LAYER_DIR")
                 .takes_value(true)
-                .default_value("./layers/Example"),
+                .default_value("./layers"),
         )
         .arg(
             Arg::new("config")
