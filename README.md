@@ -5,6 +5,8 @@ based on the defined layer order and layer files.
 
 > IMPORTANT: This project as heavily inspired by the [HashLips ArtEngine](https://github.com/HashLips/hashlips_art_engine).
 
+![Logo](/assets/Readme_Logo.png "Amen_A")
+
 ## Usage example
 
 - Most simple image processing: `$ sdx_ntx_art_collection`
