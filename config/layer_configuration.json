@@ -1,0 +1,65 @@
+{
+  "namePrefix": "Letter A",
+  "description": "Graffiti Letter 'A' Collection",
+  "ipfsUri": "ipfs://NewUriToReplace",
+  "layers": [
+    {
+      "size": 100,
+      "order": [
+        {
+          "name": "Background_Fire_Base"
+        },
+        {
+          "name": "Background_Fire",
+          "pickMax": 2
+        },
+        {
+          "name": "FillIn"
+        },
+        {
+          "name": "Details",
+          "pickMax": 3
+        },
+        {
+          "name": "Outline"
+        },
+        {
+          "name": "Shadow"
+        },
+        {
+          "name": "Highlights",
+          "pickMax": 3
+        }
+      ]
+    },
+    {
+      "size": 50,
+      "order": [
+        {
+          "name": "Background_Steppe_Base"
+        },
+        {
+          "name": "Background_Steppe",
+          "pickMax": 4
+        },
+        {
+          "name": "FillIn"
+        },
+        {
+          "name": "Details",
+          "pickMax": 3
+        },
+        {
+          "name": "Outline"
+        },
+        {
+          "name": "Shadow"
+        },
+        {
+          "name": "Highlights",
+          "pickMax": 3
+        }
+      ]
+    }
+  ]
+}
