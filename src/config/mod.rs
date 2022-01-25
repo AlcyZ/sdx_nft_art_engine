@@ -66,43 +66,42 @@ impl Configuration {
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct LayerConfigurations<T: AsRef<str>> {
+pub struct LayerConfigurations {
     _name_prefix: String,
     _description: String,
     _ipfs_uri: String,
-    layers: Vec<LayerConfiguration<T>>,
+    layers: Vec<LayerConfiguration>,
 }
 
-impl<T: AsRef<str>> LayerConfigurations<T> {
-    pub fn get_layers(&self) -> &Vec<LayerConfiguration<T>> {
+impl LayerConfigurations {
+    pub fn get_layers(&self) -> &Vec<LayerConfiguration> {
         &self.layers
     }
 }
 
-impl LayerConfigurations<String> {
-    pub fn from_file<P: AsRef<Path>>(path: P) -> Result<LayerConfigurations<String>> {
+impl LayerConfigurations {
+    pub fn from_file<P: AsRef<Path>>(path: P) -> Result<LayerConfigurations> {
         let context = format!(
             "create layer configurations from file: {}",
             path.as_ref().display()
         );
         let config_content = read_to_string(path).context(context.clone())?;
-        // let configurations: Vec<LayerConfiguration<String>> =
-        //     serde_json::from_str(&config_content).context(context)?;
 
         serde_json::from_str(&config_content).context(context)
     }
 }
 
 #[derive(Debug, Deserialize)]
-pub struct LayerConfiguration<T: AsRef<str>> {
+#[serde(rename_all = "camelCase")]
+pub struct LayerConfiguration {
     size: u32,
-    order: Vec<T>,
+    order: Vec<LayerConfig>,
     #[serde(skip)]
     dna: RefCell<Option<String>>,
 }
 
-impl LayerConfiguration<String> {
-    pub fn _from_file<P: AsRef<Path>>(path: P) -> Result<LayerConfiguration<String>> {
+impl LayerConfiguration {
+    pub fn _from_file<P: AsRef<Path>>(path: P) -> Result<LayerConfiguration> {
         let context = format!(
             "create layer configuration from file: {}",
             path.as_ref().display()
@@ -113,11 +112,11 @@ impl LayerConfiguration<String> {
     }
 }
 
-impl<T: AsRef<str>> LayerConfiguration<T> {
-    pub fn _new(size: u32, order: Vec<T>) -> LayerConfiguration<T> {
+impl LayerConfiguration {
+    pub fn _new(size: u32, order: Vec<LayerConfig>) -> LayerConfiguration {
         let chained_order = order
             .iter()
-            .map(|o| o.as_ref())
+            .map(|o| o.get_name())
             .collect::<Vec<&str>>()
             .join(":");
 
@@ -130,7 +129,7 @@ impl<T: AsRef<str>> LayerConfiguration<T> {
         self.size
     }
 
-    pub fn get_order(&self) -> &Vec<T> {
+    pub fn get_order(&self) -> &Vec<LayerConfig> {
         &self.order
     }
 
@@ -141,7 +140,7 @@ impl<T: AsRef<str>> LayerConfiguration<T> {
             let chained_order = self
                 .order
                 .iter()
-                .map(|o| o.as_ref())
+                .map(|o| o.get_name())
                 .collect::<Vec<&str>>()
                 .join(":");
 
@@ -150,4 +149,33 @@ impl<T: AsRef<str>> LayerConfiguration<T> {
 
         self.dna.borrow().as_ref().unwrap().to_string()
     }
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct LayerConfig {
+    name: String,
+
+    #[serde(default = "default_pick")]
+    pick_min: u32,
+    #[serde(default = "default_pick")]
+    pick_max: u32,
+}
+
+impl LayerConfig {
+    pub fn get_name(&self) -> &str {
+        &self.name
+    }
+
+    pub fn get_pick_min(&self) -> u32 {
+        self.pick_min
+    }
+
+    pub fn get_pick_max(&self) -> u32 {
+        self.pick_max
+    }
+}
+
+fn default_pick() -> u32 {
+    1
 }

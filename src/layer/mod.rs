@@ -1,10 +1,10 @@
 use std::ffi::OsString;
-use std::fs::{read_dir, DirEntry};
+use std::fs::{DirEntry, read_dir};
 use std::path::{Path, PathBuf};
 
 use anyhow::{Context, Result};
-use image::imageops::{overlay, FilterType};
-use image::{open, GenericImageView, ImageBuffer, Rgba};
+use image::{GenericImageView, ImageBuffer, open, Rgba};
+use image::imageops::{FilterType, overlay};
 use rand::prelude::*;
 
 use crate::config::{Configuration, LayerConfiguration};
@@ -71,9 +71,9 @@ impl Layers {
         Ok(Layers { layers })
     }
 
-    pub fn create_images<T: AsRef<str>>(
+    pub fn create_images(
         &self,
-        layer_config: &LayerConfiguration<T>,
+        layer_config: &LayerConfiguration,
         config: &Configuration,
     ) -> Result<()> {
         let context = format!(
@@ -143,15 +143,17 @@ impl Layers {
         self.layers.iter().find(|l| l.name == name.as_ref())
     }
 
-    fn get_final_layer_composite<T: AsRef<str>>(
+    fn get_final_layer_composite(
         &self,
-        layer_configuration: &LayerConfiguration<T>,
+        layer_configuration: &LayerConfiguration,
     ) -> FinalLayerComposite {
         let mut files = vec![];
 
         for name in layer_configuration.get_order() {
-            if let Some(layer) = self.get_layer(name) {
-                files.push(layer.get_rng_file().clone())
+            if let Some(layer) = self.get_layer(name.get_name()) {
+                let mut layer_files = layer.get_rng_files(name.get_pick_min(), name.get_pick_max());
+
+                files.append(&mut layer_files)
             }
         }
 
@@ -182,7 +184,10 @@ impl Layer {
             files.push(LayerFile::try_from_dir_entry(id, layer_entry).context(context.clone())?);
         }
         if files.is_empty() {
-            bail!("Couldn't find any layer files in {}", entry.path().display());
+            bail!(
+                "Couldn't find any layer files in {}",
+                entry.path().display()
+            );
         }
         let files = LayerFiles::new(files);
 
@@ -191,6 +196,24 @@ impl Layer {
 
     fn get_rng_file(&self) -> &LayerFile {
         self.files.get_rng_file()
+    }
+
+    fn get_rng_files(&self, min: u32, max: u32) -> Vec<LayerFile> {
+        assert!(min <= max, "Min must be lower than max!");
+
+        let to = if min == max {
+            min
+        } else {
+            let mut rng = rand::thread_rng();
+            rng.gen_range(min..max)
+        };
+        let mut files = vec![];
+
+        for _ in 0..to {
+            files.push(self.get_rng_file().clone());
+        }
+
+        files
     }
 }
 
@@ -279,10 +302,10 @@ impl FinalLayerComposite {
             .join("-")
     }
 
-    fn save<T: AsRef<str>>(
+    fn save(
         &self,
         index: u32,
-        layer_config: &LayerConfiguration<T>,
+        layer_config: &LayerConfiguration,
         config: &Configuration,
     ) -> Result<()> {
         let context = "save final layer composite";
@@ -298,7 +321,7 @@ impl FinalLayerComposite {
             config.is_resize_enabled(),
             &image_paths,
         )
-        .context(context)?;
+            .context(context)?;
 
         let config_dna = layer_config.get_dna();
         let layer_dna = self.get_dna();
