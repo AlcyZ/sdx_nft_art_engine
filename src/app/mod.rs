@@ -82,7 +82,7 @@ fn get_matches() -> ArgMatches {
                 .long("config-file")
                 .value_name("CONFIG_FILE")
                 .takes_value(true)
-                .default_value("./config/sample_layer_configs.json"),
+                .default_value("./config/layer_configuration.json"),
         )
         .arg(
             Arg::new("destination")
