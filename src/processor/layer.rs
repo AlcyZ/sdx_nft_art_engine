@@ -3,7 +3,6 @@ use std::fs::{read_dir, DirEntry};
 use std::path::{Path, PathBuf};
 
 use anyhow::{Context, Result};
-
 use rand::prelude::*;
 
 #[derive(Debug, Clone)]

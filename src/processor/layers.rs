@@ -3,7 +3,6 @@ use std::fs::read_dir;
 use anyhow::{Context, Result};
 
 use crate::config::{Configuration, LayerConfiguration};
-
 use crate::logger::{log_measure, log_warn};
 use crate::processor::layer::Layer;
 use crate::processor::layer_composite::FinalLayerComposite;
