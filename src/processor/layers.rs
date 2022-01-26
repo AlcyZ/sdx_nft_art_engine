@@ -1,17 +1,12 @@
-use std::ffi::OsString;
-use std::fs::{DirEntry, read_dir};
-use std::path::{Path, PathBuf};
+use std::fs::read_dir;
 
 use anyhow::{Context, Result};
-use image::{GenericImageView, ImageBuffer, open, Rgba};
-use image::imageops::{FilterType, overlay};
-use rand::prelude::*;
 
 use crate::config::{Configuration, LayerConfiguration};
-use crate::hashing::simple_sha256;
-use crate::layer::layer::Layer;
-use crate::layer::layer_composite::FinalLayerComposite;
-use crate::logger::{log_info, log_measure, log_warn};
+
+use crate::logger::{log_measure, log_warn};
+use crate::processor::layer::Layer;
+use crate::processor::layer_composite::FinalLayerComposite;
 
 #[derive(Debug)]
 pub struct Layers {

@@ -1,16 +1,13 @@
-use std::ffi::OsString;
-use std::fs::{DirEntry, read_dir};
-use std::path::{Path, PathBuf};
+use std::path::Path;
 
 use anyhow::{Context, Result};
-use image::{GenericImageView, ImageBuffer, open, Rgba};
-use image::imageops::{FilterType, overlay};
-use rand::prelude::*;
+use image::imageops::{overlay, FilterType};
+use image::{open, GenericImageView, ImageBuffer, Rgba};
 
 use crate::config::{Configuration, LayerConfiguration};
 use crate::hashing::simple_sha256;
-use crate::layer::layer::LayerFile;
-use crate::logger::{log_info, log_measure, log_warn};
+use crate::logger::log_info;
+use crate::processor::layer::LayerFile;
 
 pub(super) struct FinalLayerComposite {
     dna: String,
@@ -25,7 +22,7 @@ impl FinalLayerComposite {
         FinalLayerComposite { dna, files }
     }
 
-    pub(super)  fn get_dna(&self) -> &str {
+    pub(super) fn get_dna(&self) -> &str {
         &self.dna
     }
 
@@ -37,7 +34,7 @@ impl FinalLayerComposite {
             .join("-")
     }
 
-    pub(super)  fn save(
+    pub(super) fn save(
         &self,
         index: u32,
         layer_config: &LayerConfiguration,
@@ -56,7 +53,7 @@ impl FinalLayerComposite {
             config.is_resize_enabled(),
             &image_paths,
         )
-            .context(context)?;
+        .context(context)?;
 
         let config_dna = layer_config.get_dna();
         let layer_dna = self.get_dna();

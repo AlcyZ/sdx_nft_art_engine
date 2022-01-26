@@ -1,15 +1,10 @@
 use std::ffi::OsString;
-use std::fs::{DirEntry, read_dir};
+use std::fs::{read_dir, DirEntry};
 use std::path::{Path, PathBuf};
 
 use anyhow::{Context, Result};
-use image::{GenericImageView, ImageBuffer, open, Rgba};
-use image::imageops::{FilterType, overlay};
-use rand::prelude::*;
 
-use crate::config::{Configuration, LayerConfiguration};
-use crate::hashing::simple_sha256;
-use crate::logger::{log_info, log_measure, log_warn};
+use rand::prelude::*;
 
 #[derive(Debug, Clone)]
 pub struct Layer {
@@ -125,7 +120,6 @@ impl LayerFile {
             path: entry.path(),
         })
     }
-
 
     pub(super) fn get_id(&self) -> usize {
         self.id

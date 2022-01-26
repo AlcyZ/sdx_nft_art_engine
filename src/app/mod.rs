@@ -2,8 +2,8 @@ use anyhow::{Context, Result};
 use clap::{App, Arg, ArgMatches};
 
 use crate::config::{Configuration, LayerConfigurations};
-use crate::layer::layers::Layers;
 use crate::logger::{log_measure, log_warn};
+use crate::processor::layers::Layers;
 
 pub fn run() -> Result<()> {
     let context = "Execute application";
