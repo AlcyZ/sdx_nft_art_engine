@@ -2,7 +2,7 @@ use anyhow::{Context, Result};
 use clap::{App, Arg, ArgMatches};
 
 use crate::config::{Configuration, LayerConfigurations};
-use crate::layer::Layers;
+use crate::layer::layers::Layers;
 use crate::logger::{log_measure, log_warn};
 
 pub fn run() -> Result<()> {
