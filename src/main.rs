@@ -7,10 +7,8 @@ mod app;
 mod config;
 mod hashing;
 mod logger;
-mod processor;
 
-fn main() -> Result<()> {
-    app::run()?;
-
-    Ok(())
+#[tokio::main]
+async fn main() -> Result<()> {
+    app::run()
 }
