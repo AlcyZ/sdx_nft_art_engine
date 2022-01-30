@@ -5,6 +5,8 @@ use std::path::{Path, PathBuf};
 use anyhow::{Context, Result};
 use rand::prelude::*;
 
+const RNG_LAYER_MAX_RETRY: u32 = 1000;
+
 #[derive(Debug, Clone)]
 pub struct Layer {
     name: String,
@@ -47,10 +49,20 @@ impl Layer {
             let mut rng = rand::thread_rng();
             rng.gen_range(min..max)
         };
-        let mut files = vec![];
 
-        for _ in 0..to {
-            files.push(self.get_rng_file().clone());
+        let mut files = vec![];
+        let mut retries = 0;
+        let mut results = 0;
+
+        while results < to && retries < RNG_LAYER_MAX_RETRY {
+            let file = self.get_rng_file();
+
+            if !files.contains(&file) {
+                files.push(file);
+                results += 1;
+            } else {
+                retries += 1;
+            }
         }
 
         files
@@ -60,8 +72,8 @@ impl Layer {
         &self.name
     }
 
-    fn get_rng_file(&self) -> &LayerFile {
-        self.files.get_rng_file()
+    fn get_rng_file(&self) -> LayerFile {
+        self.files.get_rng_file().clone()
     }
 }
 
@@ -80,7 +92,7 @@ impl LayerFiles {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Eq, PartialEq)]
 pub(super) struct LayerFile {
     id: usize,
     name: String,
