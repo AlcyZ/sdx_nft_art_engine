@@ -5,7 +5,6 @@ use anyhow::{Context, Result};
 
 use crate::config::app::AppConfiguration;
 use crate::config::edition::EditionConfiguration;
-
 use crate::layers_model::Layers;
 use crate::logger::log_warn;
 use crate::processor::model::image::Image;
