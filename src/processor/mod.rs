@@ -8,7 +8,7 @@ use crate::config::edition::EditionConfiguration;
 use crate::hashing::simple_sha256;
 use crate::layers_model::Layers;
 use crate::logger::{log_info, log_warn};
-use crate::processor::model::image::ImageComposite;
+use crate::processor::model::image::Image;
 
 mod model;
 
@@ -31,7 +31,7 @@ pub fn create_images<L: AsRef<Path> + Debug, D: AsRef<Path> + Debug>(
         edition_size += layer_config.get_size();
 
         while edition_items < edition_size && retries < MAX_EDITION_RETRIES {
-            let composite = ImageComposite::from_layers(layers, layer_config);
+            let composite = Image::from_layers(layers, layer_config);
             let composite_dna = composite.get_dna().to_string();
 
             if existing_dna.contains(&composite_dna) {

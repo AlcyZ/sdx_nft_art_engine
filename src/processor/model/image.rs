@@ -13,16 +13,16 @@ use crate::layers_model::{Layers, RngLayerFile};
 use crate::logger::log_info;
 
 #[derive(Debug)]
-pub(in super::super) struct ImageComposite {
-    files: Vec<ImageCompositeFile>,
+pub(in super::super) struct Image {
+    files: Vec<ImageFile>,
     dna: String,
 }
 
-impl ImageComposite {
+impl Image {
     pub(in super::super) fn from_layers(
         layers: &Layers,
         layer_config: &LayerConfiguration,
-    ) -> ImageComposite {
+    ) -> Image {
         let mut composite_files = vec![];
         layer_config.get_order().iter().for_each(|lo| {
             composite_files.append(&mut layers.get_rng_files(
@@ -32,7 +32,7 @@ impl ImageComposite {
             ))
         });
 
-        ImageComposite::from_rng_files(&composite_files)
+        Image::from_rng_files(&composite_files)
     }
 
     pub(in super::super) fn get_dna(&self) -> &str {
@@ -55,13 +55,13 @@ impl ImageComposite {
     }
 }
 
-impl ImageComposite {
-    fn from_rng_files(files: &Vec<RngLayerFile>) -> ImageComposite {
+impl Image {
+    fn from_rng_files(files: &Vec<RngLayerFile>) -> Image {
         let composite_files = files
             .iter()
-            .map(|f| ImageCompositeFile::try_from_path(f.get_layer(), f.get_path()))
+            .map(|f| ImageFile::try_from_path(f.get_layer(), f.get_path()))
             .filter_map(|r| r.ok())
-            .collect::<Vec<ImageCompositeFile>>();
+            .collect::<Vec<ImageFile>>();
 
         let dna_string = composite_files
             .iter()
@@ -70,7 +70,7 @@ impl ImageComposite {
             .join("__");
         let dna = simple_sha256(dna_string.as_bytes());
 
-        ImageComposite {
+        Image {
             files: composite_files,
             dna,
         }
@@ -116,15 +116,15 @@ impl ImageComposite {
 }
 
 #[derive(Debug)]
-struct ImageCompositeFile {
+struct ImageFile {
     _file_name: String,
     _name: String,
     _layer: String,
     path: PathBuf,
 }
 
-impl ImageCompositeFile {
-    fn try_from_path(layer: &str, path: &Path) -> Result<ImageCompositeFile> {
+impl ImageFile {
+    fn try_from_path(layer: &str, path: &Path) -> Result<ImageFile> {
         let context = format!(
             "try to create image composite file for layer ({}) from path ({})",
             layer,
@@ -139,7 +139,7 @@ impl ImageCompositeFile {
             .context(context.clone())?
             .to_string();
 
-        Ok(ImageCompositeFile {
+        Ok(ImageFile {
             _file_name: file_name,
             _name: name,
             _layer: layer.to_string(),
