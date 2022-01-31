@@ -56,7 +56,7 @@ impl Image {
 }
 
 impl Image {
-    fn from_rng_files(files: &Vec<RngLayerFile>) -> Image {
+    fn from_rng_files(files: &[RngLayerFile]) -> Image {
         let composite_files = files
             .iter()
             .map(|f| ImageFile::try_from_path(f.get_layer(), f.get_path()))
@@ -133,11 +133,7 @@ impl ImageFile {
 
         let file_name = try_convert_os_str_to_string(path.file_name().context(context.clone())?)
             .context(context.clone())?;
-        let name = file_name
-            .split('.')
-            .next()
-            .context(context.clone())?
-            .to_string();
+        let name = file_name.split('.').next().context(context)?.to_string();
 
         Ok(ImageFile {
             _file_name: file_name,

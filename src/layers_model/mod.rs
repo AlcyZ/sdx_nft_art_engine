@@ -1,4 +1,3 @@
-use std::cmp::Ordering;
 use std::ffi::OsString;
 use std::fs::{read_dir, DirEntry};
 use std::path::{Path, PathBuf};
@@ -11,7 +10,7 @@ use crate::logger::log_warn;
 
 #[derive(Debug)]
 pub struct Layers {
-    _layers: Vec<Layer>,
+    layers: Vec<Layer>,
 }
 
 impl Layers {
@@ -46,7 +45,7 @@ impl Layers {
     }
 
     fn find_layer(&self, name: &str) -> Option<&Layer> {
-        self._layers.iter().filter(|l| l._name == name).next()
+        self.layers.iter().find(|l| l._name == name)
     }
 }
 
@@ -81,7 +80,7 @@ impl Layers {
             Err(_) => vec![],
         };
 
-        Layers { _layers: layers }
+        Layers { layers }
     }
 }
 
@@ -114,7 +113,7 @@ impl Layer {
         let mut files = vec![];
 
         read_dir(dir_entry.path())
-            .context(context.clone())?
+            .context(context)?
             .filter_map(|e| e.ok())
             .filter(|e| e.path().is_file())
             .for_each(|e| files.push(e.path()));
@@ -133,15 +132,7 @@ fn try_convert_os_string_to_string(string: OsString) -> Result<String> {
 }
 
 fn sort_utility(mut files: Vec<RngLayerFile>) -> Vec<RngLayerFile> {
-    files.sort_by(|a, b| {
-        if a.path < b.path {
-            Ordering::Less
-        } else if a.path > b.path {
-            Ordering::Greater
-        } else {
-            Ordering::Equal
-        }
-    });
+    files.sort_by(|a, b| a.path.cmp(&b.path));
 
     files
 }
