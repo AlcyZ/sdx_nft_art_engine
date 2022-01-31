@@ -1,5 +1,5 @@
 use std::fmt::Debug;
-use std::path::{Path, PathBuf};
+use std::path::Path;
 
 use anyhow::{Context, Result};
 
@@ -28,7 +28,7 @@ pub fn create_images<L: AsRef<Path> + Debug, D: AsRef<Path> + Debug>(
     let mut existing_dna: Vec<String> = vec![];
 
     for layer_config in edition_config.get_layers() {
-        edition_size += layer_config._get_size();
+        edition_size += layer_config.get_size();
 
         while edition_items < edition_size && retries < MAX_EDITION_RETRIES {
             let composite = create_composite(layers, layer_config);

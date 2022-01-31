@@ -1,10 +1,10 @@
-use std::ffi::{OsStr, OsString};
+use std::ffi::OsStr;
 use std::fs::create_dir_all;
 use std::path::{Path, PathBuf};
 
 use anyhow::{Context, Result};
-use image::{ImageBuffer, open, Rgba};
 use image::imageops::overlay;
+use image::{open, ImageBuffer, Rgba};
 
 use crate::config::app::AppConfiguration;
 use crate::hashing::simple_sha256;
@@ -54,7 +54,6 @@ impl ImageComposite {
         Ok(())
     }
 
-
     fn save_image<L: AsRef<Path>, D: AsRef<Path>>(
         &self,
         edition: u32,
@@ -76,7 +75,10 @@ impl ImageComposite {
         let destination = destination.join(format!("{}.png", edition));
         final_image.save(&destination).context(context)?;
 
-        log_info(format!("Created unique image for edition: {}", destination.display()));
+        log_info(format!(
+            "Created unique image for edition: {}",
+            destination.display()
+        ));
 
         Ok(())
     }
@@ -84,25 +86,13 @@ impl ImageComposite {
 
 #[derive(Debug)]
 struct ImageCompositeFile {
-    file_name: String,
-    name: String,
-    layer: String,
+    _file_name: String,
+    _name: String,
+    _layer: String,
     path: PathBuf,
 }
 
 impl ImageCompositeFile {
-    fn from_path(layer: &str, path: &Path) -> ImageCompositeFile {
-        let file_name = convert_os_string_to_string(path.file_name().unwrap());
-        let name = file_name.split('.').next().unwrap().to_string();
-
-        ImageCompositeFile {
-            file_name,
-            name,
-            layer: layer.to_string(),
-            path: path.to_path_buf(),
-        }
-    }
-
     fn try_from_path(layer: &str, path: &Path) -> Result<ImageCompositeFile> {
         let context = format!(
             "try to create image composite file for layer ({}) from path ({})",
@@ -119,9 +109,9 @@ impl ImageCompositeFile {
             .to_string();
 
         Ok(ImageCompositeFile {
-            file_name,
-            name,
-            layer: layer.to_string(),
+            _file_name: file_name,
+            _name: name,
+            _layer: layer.to_string(),
             path: path.to_path_buf(),
         })
     }
@@ -136,10 +126,6 @@ fn try_convert_os_str_to_string(str: &OsStr) -> Result<String> {
     Ok(string)
 }
 
-fn convert_os_string_to_string(string: &OsStr) -> String {
-    string.to_str().unwrap().to_string()
-}
-
 fn overlay_images<P: AsRef<Path>>(
     size: u32,
     image_paths: &[P],
@@ -151,7 +137,7 @@ fn overlay_images<P: AsRef<Path>>(
     let mut base_img = ImageBuffer::from_fn(size, size, bg_cb);
 
     for image_path in image_paths {
-        let mut dyn_img = open(image_path).context(context)?;
+        let dyn_img = open(image_path).context(context)?;
         let img = dyn_img.into_rgba8();
 
         overlay(&mut base_img, &img, 0, 0);

@@ -48,13 +48,13 @@ impl EditionConfiguration {
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct LayerConfiguration {
-    _size: u32,
+    size: u32,
     order: Vec<LayerOrderConfiguration>,
 }
 
 impl LayerConfiguration {
-    pub fn _get_size(&self) -> u32 {
-        self._size
+    pub fn get_size(&self) -> u32 {
+        self.size
     }
 
     pub fn get_order(&self) -> &Vec<LayerOrderConfiguration> {
