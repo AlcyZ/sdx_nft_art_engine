@@ -7,18 +7,56 @@ use image::imageops::overlay;
 use image::{open, ImageBuffer, Rgba};
 
 use crate::config::app::AppConfiguration;
+use crate::config::edition::LayerConfiguration;
 use crate::hashing::simple_sha256;
-use crate::layers_model::RngLayerFile;
+use crate::layers_model::{Layers, RngLayerFile};
 use crate::logger::log_info;
 
 #[derive(Debug)]
-pub(super) struct ImageComposite {
+pub(in super::super) struct ImageComposite {
     files: Vec<ImageCompositeFile>,
     dna: String,
 }
 
 impl ImageComposite {
-    pub(super) fn from_rng_files(files: &Vec<RngLayerFile>) -> ImageComposite {
+    pub(in super::super) fn from_layers(
+        layers: &Layers,
+        layer_config: &LayerConfiguration,
+    ) -> ImageComposite {
+        let mut composite_files = vec![];
+        layer_config.get_order().iter().for_each(|lo| {
+            composite_files.append(&mut layers.get_rng_files(
+                lo.get_name(),
+                lo.get_pick_min(),
+                lo.get_pick_max(),
+            ))
+        });
+
+        ImageComposite::from_rng_files(&composite_files)
+    }
+
+    pub(in super::super) fn get_dna(&self) -> &str {
+        &self.dna
+    }
+
+    pub(in super::super) fn save<L: AsRef<Path>, D: AsRef<Path>>(
+        &self,
+        edition: u32,
+        app_config: &AppConfiguration<L, D>,
+        layer_config: &LayerConfiguration,
+    ) -> Result<()> {
+        let context = "Save image composite";
+
+        self.save_image(edition, app_config).context(context)?;
+        self.save_meta(edition, app_config, layer_config)
+            .context(context)?;
+
+        Ok(())
+    }
+}
+
+impl ImageComposite {
+    fn from_rng_files(files: &Vec<RngLayerFile>) -> ImageComposite {
         let composite_files = files
             .iter()
             .map(|f| ImageCompositeFile::try_from_path(f.get_layer(), f.get_path()))
@@ -38,28 +76,12 @@ impl ImageComposite {
         }
     }
 
-    pub(super) fn get_dna(&self) -> &str {
-        &self.dna
-    }
-
-    pub(super) fn save<L: AsRef<Path>, D: AsRef<Path>>(
-        &self,
-        edition: u32,
-        app_config: &AppConfiguration<L, D>,
-    ) -> Result<()> {
-        let context = "Save image composite";
-
-        self.save_image(edition, app_config).context(context)?;
-
-        Ok(())
-    }
-
     fn save_image<L: AsRef<Path>, D: AsRef<Path>>(
         &self,
         edition: u32,
         app_config: &AppConfiguration<L, D>,
     ) -> Result<()> {
-        let context = "Save overlayed images of composite";
+        let context = "Save s images of composite";
 
         let image_paths = self
             .files
@@ -80,6 +102,15 @@ impl ImageComposite {
             destination.display()
         ));
 
+        Ok(())
+    }
+
+    fn save_meta<L: AsRef<Path>, D: AsRef<Path>>(
+        &self,
+        _edition: u32,
+        _app_config: &AppConfiguration<L, D>,
+        _layer_config: &LayerConfiguration,
+    ) -> Result<()> {
         Ok(())
     }
 }

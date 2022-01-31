@@ -4,11 +4,11 @@ use std::path::Path;
 use anyhow::{Context, Result};
 
 use crate::config::app::AppConfiguration;
-use crate::config::edition::{EditionConfiguration, LayerConfiguration};
+use crate::config::edition::EditionConfiguration;
 use crate::hashing::simple_sha256;
 use crate::layers_model::Layers;
 use crate::logger::{log_info, log_warn};
-use crate::processor::model::ImageComposite;
+use crate::processor::model::image::ImageComposite;
 
 mod model;
 
@@ -31,7 +31,7 @@ pub fn create_images<L: AsRef<Path> + Debug, D: AsRef<Path> + Debug>(
         edition_size += layer_config.get_size();
 
         while edition_items < edition_size && retries < MAX_EDITION_RETRIES {
-            let composite = create_composite(layers, layer_config);
+            let composite = ImageComposite::from_layers(layers, layer_config);
             let composite_dna = composite.get_dna().to_string();
 
             if existing_dna.contains(&composite_dna) {
@@ -39,7 +39,7 @@ pub fn create_images<L: AsRef<Path> + Debug, D: AsRef<Path> + Debug>(
                 check_log_existing_dna(retries, &composite_dna);
             } else {
                 composite
-                    .save(edition_items + 1, app_config)
+                    .save(edition_items + 1, app_config, layer_config)
                     .context("save composite while image processing")?;
 
                 existing_dna.push(composite_dna);
@@ -49,19 +49,6 @@ pub fn create_images<L: AsRef<Path> + Debug, D: AsRef<Path> + Debug>(
     }
 
     Ok(())
-}
-
-fn create_composite(layers: &Layers, layer_config: &LayerConfiguration) -> ImageComposite {
-    let mut composite_files = vec![];
-    layer_config.get_order().iter().for_each(|lo| {
-        composite_files.append(&mut layers.get_rng_files(
-            lo.get_name(),
-            lo.get_pick_min(),
-            lo.get_pick_max(),
-        ))
-    });
-
-    ImageComposite::from_rng_files(&composite_files)
 }
 
 fn check_log_existing_dna(retries: u32, composite_dna: &str) {
