@@ -10,7 +10,7 @@ pub struct EditionConfiguration {
     _name: String,
     _description: String,
     _ipfs_uri: String,
-    _layers: Vec<LayerConfiguration>,
+    layers: Vec<LayerConfiguration>,
 }
 
 impl EditionConfiguration {
@@ -40,8 +40,8 @@ impl EditionConfiguration {
     pub fn _get_ipfs_uri(&self) -> &str {
         &self._ipfs_uri
     }
-    pub fn _get_layers(&self) -> &Vec<LayerConfiguration> {
-        &self._layers
+    pub fn get_layers(&self) -> &Vec<LayerConfiguration> {
+        &self.layers
     }
 }
 
@@ -49,7 +49,7 @@ impl EditionConfiguration {
 #[serde(rename_all = "camelCase")]
 pub struct LayerConfiguration {
     _size: u32,
-    _order: Vec<LayerOrderConfiguration>,
+    order: Vec<LayerOrderConfiguration>,
 }
 
 impl LayerConfiguration {
@@ -57,35 +57,35 @@ impl LayerConfiguration {
         self._size
     }
 
-    pub fn _get_order(&self) -> &Vec<LayerOrderConfiguration> {
-        &self._order
+    pub fn get_order(&self) -> &Vec<LayerOrderConfiguration> {
+        &self.order
     }
 }
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct LayerOrderConfiguration {
-    _name: String,
-    _pick_min: Option<u32>,
-    _pick_max: Option<u32>,
+    name: String,
+    #[serde(default = "default_pick")]
+    pick_min: u32,
+    #[serde(default = "default_pick")]
+    pick_max: u32,
 }
 
 impl LayerOrderConfiguration {
-    pub fn _get_name(&self) -> &str {
-        &self._name
+    pub fn get_name(&self) -> &str {
+        &self.name
     }
 
-    pub fn _get_pick_min(&self) -> Option<u32> {
-        match self._pick_min {
-            Some(value) => Some(value),
-            None => None,
-        }
+    pub fn get_pick_min(&self) -> u32 {
+        self.pick_min
     }
 
-    pub fn _get_pick_max(&self) -> Option<u32> {
-        match self._pick_max {
-            Some(value) => Some(value),
-            None => None,
-        }
+    pub fn get_pick_max(&self) -> u32 {
+        self.pick_max
     }
+}
+
+fn default_pick() -> u32 {
+    1
 }

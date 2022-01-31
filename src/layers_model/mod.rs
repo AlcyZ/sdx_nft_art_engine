@@ -1,9 +1,12 @@
-use std::ffi::{OsString};
+use std::cmp::Ordering;
+use std::ffi::OsString;
 use std::fs::{read_dir, DirEntry};
 use std::path::{Path, PathBuf};
 
 use anyhow::{Context, Result};
+use rand::prelude::*;
 
+use crate::config::app::AppConfiguration;
 use crate::logger::log_warn;
 
 #[derive(Debug)]
@@ -12,7 +15,49 @@ pub struct Layers {
 }
 
 impl Layers {
-    pub fn from_path<P: AsRef<Path>>(path: P) -> Layers {
+    pub fn get_rng_files(&self, name: &str, min: u32, max: u32) -> Vec<RngLayerFile> {
+        match self.find_layer(name) {
+            Some(layer) => {
+                let mut rng = rand::thread_rng();
+                let amount = if min == max {
+                    min
+                } else {
+                    rng.gen_range(min..=max)
+                };
+
+                sort_utility(
+                    layer
+                        .files
+                        .choose_multiple(&mut rand::thread_rng(), amount as usize)
+                        .map(|p| p.to_path_buf())
+                        .map(|p| RngLayerFile {
+                            layer: name.to_string(),
+                            path: p,
+                        })
+                        .collect(),
+                )
+            }
+            None => {
+                log_warn(format!("Couldn't find layer with name: {}", name));
+
+                vec![]
+            }
+        }
+    }
+
+    fn find_layer(&self, name: &str) -> Option<&Layer> {
+        self._layers.iter().filter(|l| l._name == name).next()
+    }
+}
+
+impl Layers {
+    pub fn from_config<L: AsRef<Path>, D: AsRef<Path>>(
+        app_config: &AppConfiguration<L, D>,
+    ) -> Layers {
+        Layers::from_path(app_config.get_layers_dir())
+    }
+
+    fn from_path<P: AsRef<Path>>(path: P) -> Layers {
         let layers = match read_dir(path) {
             Ok(dir) => {
                 let mut layers = vec![];
@@ -41,9 +86,24 @@ impl Layers {
 }
 
 #[derive(Debug)]
+pub struct RngLayerFile {
+    layer: String,
+    path: PathBuf,
+}
+
+impl RngLayerFile {
+    pub fn get_layer(&self) -> &str {
+        &self.layer
+    }
+    pub fn get_path(&self) -> &Path {
+        &self.path
+    }
+}
+
+#[derive(Debug)]
 struct Layer {
     _name: String,
-    _files: Vec<LayerFile>,
+    files: Vec<PathBuf>,
 }
 
 impl Layer {
@@ -53,42 +113,13 @@ impl Layer {
             try_convert_os_string_to_string(dir_entry.file_name()).context(context.clone())?;
         let mut files = vec![];
 
-        for entry in read_dir(dir_entry.path())
+        read_dir(dir_entry.path())
             .context(context.clone())?
             .filter_map(|e| e.ok())
             .filter(|e| e.path().is_file())
-        {
-            let file_name = try_convert_os_string_to_string(entry.file_name())?;
-            let name = file_name
-                .split('.')
-                .next()
-                .context(context.clone())?
-                .to_string();
+            .for_each(|e| files.push(e.path()));
 
-            files.push(LayerFile::new(file_name, name, entry.path()))
-        }
-
-        Ok(Layer {
-            _name: name,
-            _files: files,
-        })
-    }
-}
-
-#[derive(Debug)]
-struct LayerFile {
-    _file_name: String,
-    _name: String,
-    _path: PathBuf,
-}
-
-impl LayerFile {
-    fn new(file_name: String, name: String, path: PathBuf) -> LayerFile {
-        LayerFile {
-            _file_name: file_name,
-            _name: name,
-            _path: path,
-        }
+        Ok(Layer { _name: name, files })
     }
 }
 
@@ -99,4 +130,18 @@ fn try_convert_os_string_to_string(string: OsString) -> Result<String> {
         .to_string();
 
     Ok(converted)
+}
+
+fn sort_utility(mut files: Vec<RngLayerFile>) -> Vec<RngLayerFile> {
+    files.sort_by(|a, b| {
+        if a.path < b.path {
+            Ordering::Less
+        } else if a.path > b.path {
+            Ordering::Greater
+        } else {
+            Ordering::Equal
+        }
+    });
+
+    files
 }
