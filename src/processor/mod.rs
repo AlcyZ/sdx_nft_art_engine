@@ -5,9 +5,9 @@ use anyhow::{Context, Result};
 
 use crate::config::app::AppConfiguration;
 use crate::config::edition::EditionConfiguration;
-use crate::hashing::simple_sha256;
+
 use crate::layers_model::Layers;
-use crate::logger::{log_info, log_warn};
+use crate::logger::log_warn;
 use crate::processor::model::image::Image;
 
 mod model;
@@ -19,9 +19,6 @@ pub fn create_images<L: AsRef<Path> + Debug, D: AsRef<Path> + Debug>(
     edition_config: &EditionConfiguration,
     app_config: &AppConfiguration<L, D>,
 ) -> Result<()> {
-    let _test_hash = simple_sha256("test".as_bytes());
-    log_info("start processing images");
-
     let mut edition_size = 0;
     let mut edition_items = 0;
     let mut retries = 0;
