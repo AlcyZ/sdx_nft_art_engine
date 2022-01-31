@@ -1,5 +1,5 @@
 use std::ffi::OsStr;
-use std::fs::create_dir_all;
+use std::fs::{create_dir_all, write};
 use std::path::{Path, PathBuf};
 
 use anyhow::{Context, Result};
@@ -7,10 +7,11 @@ use image::imageops::overlay;
 use image::{open, ImageBuffer, Rgba};
 
 use crate::config::app::AppConfiguration;
-use crate::config::edition::LayerConfiguration;
+use crate::config::edition::{EditionConfiguration, LayerConfiguration};
 use crate::hashing::simple_sha256;
 use crate::layers_model::{Layers, RngLayerFile};
 use crate::logger::log_info;
+use crate::processor::model::meta::Meta;
 
 #[derive(Debug)]
 pub(in super::super) struct Image {
@@ -43,13 +44,16 @@ impl Image {
         &self,
         edition: u32,
         app_config: &AppConfiguration<L, D>,
-        layer_config: &LayerConfiguration,
+        edition_config: &EditionConfiguration,
     ) -> Result<()> {
         let context = "Save image composite";
 
-        self.save_image(edition, app_config).context(context)?;
-        self.save_meta(edition, app_config, layer_config)
+        self.save_image(edition, app_config.get_destination_dir())
             .context(context)?;
+        self.save_meta(edition, edition_config, app_config.get_destination_dir())
+            .context(context)?;
+
+        log_info(format!("Saved image and metadata #{}", edition,));
 
         Ok(())
     }
@@ -76,12 +80,12 @@ impl Image {
         }
     }
 
-    fn save_image<L: AsRef<Path>, D: AsRef<Path>>(
-        &self,
-        edition: u32,
-        app_config: &AppConfiguration<L, D>,
-    ) -> Result<()> {
-        let context = "Save s images of composite";
+    fn save_image<P: AsRef<Path>>(&self, edition: u32, destination_path: P) -> Result<()> {
+        let context = format!(
+            "Save edition ({}) image at ({})",
+            edition,
+            destination_path.as_ref().display()
+        );
 
         let image_paths = self
             .files
@@ -89,38 +93,58 @@ impl Image {
             .map(|f| f.path.as_path())
             .collect::<Vec<&Path>>();
 
-        let final_image = overlay_images(1024, &image_paths).context(context)?;
-        let destination = app_config.get_destination_dir().join("images");
+        let final_image = overlay_images(1024, &image_paths).context(context.clone())?;
+        let destination = destination_path.as_ref().join("images");
         if !destination.is_dir() {
-            create_dir_all(&destination).context(context)?;
+            create_dir_all(&destination).context(context.clone())?;
         }
         let destination = destination.join(format!("{}.png", edition));
         final_image.save(&destination).context(context)?;
 
-        log_info(format!(
-            "Created unique image for edition: {}",
-            destination.display()
-        ));
-
         Ok(())
     }
 
-    fn save_meta<L: AsRef<Path>, D: AsRef<Path>>(
+    fn save_meta<P: AsRef<Path>>(
         &self,
-        _edition: u32,
-        _app_config: &AppConfiguration<L, D>,
-        _layer_config: &LayerConfiguration,
+        edition: u32,
+        edition_config: &EditionConfiguration,
+        destination_path: P,
     ) -> Result<()> {
+        let context = format!(
+            "Save edition ({}) meta at ({})",
+            edition,
+            destination_path.as_ref().display()
+        );
+
+        let meta = Meta::new(edition, edition_config, &self.files);
+        let meta_string = serde_json::to_string_pretty(&meta).context(context.clone())?;
+
+        let destination = destination_path.as_ref().join("meta");
+        if !destination.is_dir() {
+            create_dir_all(&destination).context(context.clone())?;
+        }
+        let destination = destination.join(format!("{}.json", edition));
+        write(&destination, meta_string).context(context)?;
+
         Ok(())
     }
 }
 
 #[derive(Debug)]
-struct ImageFile {
+pub(super) struct ImageFile {
     _file_name: String,
-    _name: String,
-    _layer: String,
+    name: String,
+    layer: String,
     path: PathBuf,
+}
+
+impl ImageFile {
+    pub(super) fn get_name(&self) -> &str {
+        &self.name
+    }
+    pub(super) fn get_layer(&self) -> &str {
+        &self.layer
+    }
 }
 
 impl ImageFile {
@@ -137,8 +161,8 @@ impl ImageFile {
 
         Ok(ImageFile {
             _file_name: file_name,
-            _name: name,
-            _layer: layer.to_string(),
+            name,
+            layer: layer.to_string(),
             path: path.to_path_buf(),
         })
     }

@@ -39,7 +39,7 @@ pub fn create_images<L: AsRef<Path> + Debug, D: AsRef<Path> + Debug>(
                 check_log_existing_dna(retries, &composite_dna);
             } else {
                 composite
-                    .save(edition_items + 1, app_config, layer_config)
+                    .save(edition_items + 1, app_config, edition_config)
                     .context("save composite while image processing")?;
 
                 existing_dna.push(composite_dna);
