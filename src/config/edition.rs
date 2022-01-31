@@ -78,14 +78,14 @@ impl LayerOrderConfiguration {
     pub fn _get_pick_min(&self) -> Option<u32> {
         match self._pick_min {
             Some(value) => Some(value),
-            None => None
+            None => None,
         }
     }
 
     pub fn _get_pick_max(&self) -> Option<u32> {
         match self._pick_max {
             Some(value) => Some(value),
-            None => None
+            None => None,
         }
     }
 }
