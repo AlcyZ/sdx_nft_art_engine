@@ -9,13 +9,13 @@ based on the defined layer order and layer files.
 
 ## Usage example
 
-- Most simple image processing: `$ sdx_ntx_art_collection`
-- Using different layer configuration file: `$ sdx_ntx_art_collection -c ./path/to/layer_config.json`
-- Cleanup existing processed images in destination direction: `$ sdx_ntx_art_collection --cleanup`
-- Using different destination directory: `$ sdx_ntx_art_collection -d ./path/to/destination/directory`
-- Change layers directory: `$ sdx_ntx_art_collection -l ./path/to/layer/direction`
+- Most simple image processing: `$ sdx_nft_art_engine`
+- Using different layer configuration file: `$ sdx_nft_art_engine -c ./path/to/layer_config.json`
+- Cleanup existing processed images in destination direction: `$ sdx_nft_art_engine --cleanup`
+- Using different destination directory: `$ sdx_nft_art_engine -d ./path/to/destination/directory`
+- Change layers directory: `$ sdx_nft_art_engine -l ./path/to/layer/direction`
 - Set max retries to a higher value (Required when a lot of possible combinations
-  exists): `$ sdx_ntx_art_collection -m 10000`
+  exists): `$ sdx_nft_art_engine -m 10000`
 
 ### Help output
 
