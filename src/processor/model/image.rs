@@ -48,8 +48,12 @@ impl Image {
     ) -> Result<()> {
         let context = "Save image composite";
 
-        self.save_image(edition, app_config.get_destination_dir())
-            .context(context)?;
+        self.save_image(
+            edition,
+            app_config.get_size(),
+            app_config.get_destination_dir(),
+        )
+        .context(context)?;
         self.save_meta(edition, edition_config, app_config.get_destination_dir())
             .context(context)?;
 
@@ -80,7 +84,12 @@ impl Image {
         }
     }
 
-    fn save_image<P: AsRef<Path>>(&self, edition: u32, destination_path: P) -> Result<()> {
+    fn save_image<P: AsRef<Path>>(
+        &self,
+        edition: u32,
+        size: u32,
+        destination_path: P,
+    ) -> Result<()> {
         let context = format!(
             "Save edition ({}) image at ({})",
             edition,
@@ -93,7 +102,7 @@ impl Image {
             .map(|f| f.path.as_path())
             .collect::<Vec<&Path>>();
 
-        let final_image = overlay_images(1024, &image_paths).context(context.clone())?;
+        let final_image = overlay_images(size, &image_paths).context(context.clone())?;
         let destination = destination_path.as_ref().join("images");
         if !destination.is_dir() {
             create_dir_all(&destination).context(context.clone())?;

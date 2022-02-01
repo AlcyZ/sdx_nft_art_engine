@@ -1,4 +1,5 @@
 use std::fmt::Debug;
+use std::fs::remove_dir_all;
 use std::path::Path;
 
 use anyhow::{Context, Result};
@@ -11,8 +12,6 @@ use crate::processor::model::image::Image;
 
 mod model;
 
-const MAX_EDITION_RETRIES: u32 = 1000;
-
 pub fn create_images<L: AsRef<Path> + Debug, D: AsRef<Path> + Debug>(
     layers: &Layers,
     edition_config: &EditionConfiguration,
@@ -22,11 +21,17 @@ pub fn create_images<L: AsRef<Path> + Debug, D: AsRef<Path> + Debug>(
     let mut edition_items = 0;
     let mut retries = 0;
     let mut existing_dna: Vec<String> = vec![];
+    let max_tries = app_config.get_max_tries();
+
+    if app_config.is_cleanup_enabled() {
+        remove_dir_all(app_config.get_destination_dir())
+            .context("cleanup destination directory before image processing")?;
+    }
 
     for layer_config in edition_config.get_layers() {
         edition_size += layer_config.get_size();
 
-        while edition_items < edition_size && retries < MAX_EDITION_RETRIES {
+        while edition_items < edition_size && retries < max_tries {
             let composite = Image::from_layers(layers, layer_config);
             let composite_dna = composite.get_dna().to_string();
 
