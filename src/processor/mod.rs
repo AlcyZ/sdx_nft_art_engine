@@ -7,7 +7,7 @@ use anyhow::{Context, Result};
 use crate::config::app::AppConfiguration;
 use crate::config::edition::EditionConfiguration;
 use crate::layers_model::Layers;
-use crate::logger::log_warn;
+use crate::logger::{log_info, log_warn};
 use crate::processor::model::image::Image;
 
 mod model;
@@ -24,6 +24,7 @@ pub fn create_images<L: AsRef<Path> + Debug, D: AsRef<Path> + Debug>(
     let max_tries = app_config.get_max_tries();
 
     if app_config.is_cleanup_enabled() {
+        log_info("Cleanup destination directory");
         remove_dir_all(app_config.get_destination_dir())
             .context("cleanup destination directory before image processing")?;
     }
