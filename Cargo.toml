@@ -9,6 +9,7 @@ edition = "2021"
 #debug = 1
 
 [dependencies]
+tokio = { version = "1.16", features = ["full"] }
 clap = "3.0"
 anyhow = "1.0"
 image = "0.23"

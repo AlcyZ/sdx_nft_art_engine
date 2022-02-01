@@ -6,11 +6,11 @@ use anyhow::Result;
 mod app;
 mod config;
 mod hashing;
+mod layers_model;
 mod logger;
 mod processor;
 
-fn main() -> Result<()> {
-    app::run()?;
-
-    Ok(())
+#[tokio::main]
+async fn main() -> Result<()> {
+    app::run()
 }
