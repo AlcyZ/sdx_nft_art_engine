@@ -19,7 +19,6 @@ pub fn create_images<L: AsRef<Path> + Debug, D: AsRef<Path> + Debug>(
 ) -> Result<()> {
     let mut edition_size = 0;
     let mut edition_items = 0;
-    let mut retries = 0;
     let mut existing_dna: Vec<String> = vec![];
     let max_tries = app_config.get_max_tries();
 
@@ -30,6 +29,7 @@ pub fn create_images<L: AsRef<Path> + Debug, D: AsRef<Path> + Debug>(
     }
 
     for layer_config in edition_config.get_layers() {
+        let mut retries = 0;
         edition_size += layer_config.get_size();
 
         while edition_items < edition_size && retries < max_tries {
