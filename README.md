@@ -11,7 +11,7 @@ based on the defined layer order and layer files.
 
 - Most simple image processing: `$ sdx_nft_art_engine`
 - Using different layer configuration file: `$ sdx_nft_art_engine -c ./path/to/layer_config.json`
-- Cleanup existing processed images in destination direction: `$ sdx_nft_art_engine --cleanup`
+- Cleanup existing processed images in destination direction: `$ sdx_nft_art_engine [-t|--cleanup]`
 - Using different destination directory: `$ sdx_nft_art_engine -d ./path/to/destination/directory`
 - Change layers directory: `$ sdx_nft_art_engine -l ./path/to/layer/direction`
 - Set max retries to a higher value (Required when a lot of possible combinations
@@ -30,7 +30,7 @@ OPTIONS:
             Configuration file used to create image from layers [default:
             ./config/sample_layer_configs.json]
 
-        --cleanup
+    -t  --cleanup
             Removes the destination directory and all of the content
 
     -d, --destination-dir <DESTINATION_DIR>
