@@ -65,6 +65,7 @@ fn get_matches() -> ArgMatches {
         .arg(
             Arg::new("cleanup")
                 .help("Removes the destination directory and all of the content")
+                .short('t')
                 .long("cleanup"))
         .arg(
             Arg::new("size")
